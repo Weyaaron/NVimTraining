@@ -4,27 +4,51 @@ additional_data = { streak= 0, last_task_type = "u" }
 
 
 function task_up()
-   
+    function inner_func()
+         
     cursor =  vim.api.nvim_win_get_cursor(0)
-    if cursor[1] == index_table.prev_x_index-1 then
-       print_content = print_content .. "Success"
-       additional_data.streak = additional_data.streak  +1 
 
 
-       play_success_sound()
-        return "Success up "
-    else
+    return cursor[1] == index_table.prev_x_index-1
+     end 
 
-        additional_data.streak = 0 
-        play_failure_sound()
-        return "Failure downp "
-    
-    end
+     return task_body(inner_func)
 end
-function task_down()
-    
+
+
+
+
+function task_right()
+    function inner_func()
+
     cursor =  vim.api.nvim_win_get_cursor(0)
-    if cursor[1] == index_table.prev_x_index+1 then
+    return cursor[2] == index_table.prev_y_index +1 
+    end 
+    return task_body(inner_func)
+end
+
+function task_left()
+    function inner_func()
+
+    cursor =  vim.api.nvim_win_get_cursor(0)
+    return cursor[2] == index_table.prev_y_index-1
+    end 
+    return task_body(inner_func)
+end
+
+function task_down()
+    function inner_func()
+
+    cursor =  vim.api.nvim_win_get_cursor(0)
+    return cursor[1] == index_table.prev_x_index+1 
+    end 
+    return task_body(inner_func)
+end
+
+
+function task_body(task_function)
+    
+    if task_function() then
 
        additional_data.streak = additional_data.streak  +1 
 
@@ -39,6 +63,7 @@ function task_down()
         
         
 end
+
 task_types = { "u", "d", "l", "r"}
 
 display_elements = {float_buffer = nil, float_window = nil }
@@ -68,6 +93,18 @@ function main(autocmd_args)
     print_content = print_content ..      task_up()    
     end
 
+
+    if additional_data.last_task_type == "l" then
+     print_content = print_content ..    task_left()
+    end
+
+
+
+
+
+    if additional_data.last_task_type == "r" then
+     print_content = print_content ..    task_right()
+    end
     if additional_data.last_task_type == "d" then
      print_content = print_content ..    task_down()
     end
@@ -79,7 +116,7 @@ function main(autocmd_args)
     end
     index_table.prev_x_index = cursor[1]
     index_table.prev_y_index = cursor[2]
-    additional_data.last_task_type = task_types[math.random(1,2)]
+    additional_data.last_task_type = task_types[math.random(1,4)]
     --print_content = print_content .. "\n\n" .. additional_data.last_task_type
 
 
